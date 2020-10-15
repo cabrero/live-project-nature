@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import random
+import time
 import tkinter as tk
 
 
@@ -18,14 +20,31 @@ INIT_SIZE = 2
 DROP_INCREASE = 5
 RESET_SIZE = 50
 
+
+def drop(canvas, i, j):
+    x = i * COL_STEP
+    y = j * ROW_STEP
+    r = INIT_SIZE // 2
+    return (canvas.create_oval(x-r, y-r, x+r, y+r , fill= "black"), x, y, INIT_SIZE)
+
 def update(canvas, drops):
-    for i, col in enumerate(drops):
-        for j, sz in enumerate(col):
-            x = i * COL_STEP
-            y = j * ROW_STEP
+    for col in drops:
+        for drop in col:
+            drop_id, x, y, sz = drop
             r = sz // 2
-            canvas.create_oval(x - r, y - r, x + r, y + r)
-            
+            canvas.coords(drop_id, x-r, y-r, x+r, y+r)
+    canvas.update()
+
+
+def grow(drop):
+    drop_id, x, y, sz = drop
+    if random.uniform(0, 10) < RAIN_RATE:
+        sz = sz + DROP_INCREASE
+        if sz > RESET_SIZE:
+            sz = INIT_SIZE
+    return (drop_id, x, y, sz)
+
+    
 def main():
     window = tk.Tk()
     window.title("Live Project: Simulating Nature")
@@ -40,11 +59,15 @@ def main():
             canvas.create_line(0, row, WIDTH, row)
             canvas.create_line(col, 0, col, HEIGHT)
 
-    drops = [ [ INIT_SIZE for _ in range(0, NROWS)] for _ in range(0, NCOLS) ]
+    drops = [ [ drop(canvas,i , j) for i in range(0, NROWS)] for j in range(0, NCOLS) ]
 
-    update(canvas, drops)
     
-    window.mainloop()
+    while True:
+        update(canvas, drops)
+        drops = [ [ grow(drop) for drop in col] for col in drops ]
+        time.sleep(0.5)
+        
+    #window.mainloop()
 
     
 if __name__ == '__main__':
