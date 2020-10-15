@@ -35,16 +35,32 @@ def update(canvas, drops):
             canvas.coords(drop_id, x-r, y-r, x+r, y+r)
     canvas.update()
 
+def reset_drop(drop):
+    drop_id, x, y, sz = drop
+    return (drop_id, x, y, INIT_SIZE)
 
 def grow(drop):
     drop_id, x, y, sz = drop
     if random.uniform(0, 10) < RAIN_RATE:
         sz = sz + DROP_INCREASE
-        if sz > RESET_SIZE:
-            sz = INIT_SIZE
-    return (drop_id, x, y, sz)
+    if sz > RESET_SIZE:
+        sz = INIT_SIZE
+        falling = True
+    else:
+        falling = False
+    return (drop_id, x, y, sz), falling
 
-    
+def grow_col(col):
+    new_col = []
+    falling_drops = False
+    for drop in col:
+        if falling_drops:
+            drop = reset_drop(drop)
+        else:
+            drop, falling_drops = grow(drop)
+        new_col.append(drop)
+    return new_col
+        
 def main():
     window = tk.Tk()
     window.title("Live Project: Simulating Nature")
@@ -59,12 +75,12 @@ def main():
             canvas.create_line(0, row, WIDTH, row)
             canvas.create_line(col, 0, col, HEIGHT)
 
-    drops = [ [ drop(canvas,i , j) for i in range(0, NROWS)] for j in range(0, NCOLS) ]
+    drops = [ [ drop(canvas,i , j) for j in range(0, NROWS)] for i in range(0, NCOLS) ]
 
     
     while True:
         update(canvas, drops)
-        drops = [ [ grow(drop) for drop in col] for col in drops ]
+        drops = [ grow_col(col) for col in drops ]
         time.sleep(0.5)
         
     #window.mainloop()
