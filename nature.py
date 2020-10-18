@@ -20,6 +20,8 @@ INIT_SIZE = 2
 DROP_INCREASE = 5
 RESET_SIZE = 50
 
+TICK_DELAY = 500
+
 
 def drop(canvas, i, j):
     x = i * COL_STEP
@@ -81,9 +83,9 @@ def main():
         nonlocal drops
         update(canvas, drops)
         drops = [ grow_col(col) for col in drops ]
-        window.after(500, tick)
+        window.after(TICK_DELAY, tick)
     
-    window.after(500, tick)
+    window.after(TICK_DELAY, tick)
     window.mainloop()
 
     
