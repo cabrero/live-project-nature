@@ -60,7 +60,7 @@ def grow_col(col):
             drop, falling_drops = grow(drop)
         new_col.append(drop)
     return new_col
-        
+
 def main():
     window = tk.Tk()
     window.title("Live Project: Simulating Nature")
@@ -77,13 +77,14 @@ def main():
 
     drops = [ [ drop(canvas,i , j) for j in range(0, NROWS)] for i in range(0, NCOLS) ]
 
-    
-    while True:
+    def tick():
+        nonlocal drops
         update(canvas, drops)
         drops = [ grow_col(col) for col in drops ]
-        time.sleep(0.5)
-        
-    #window.mainloop()
+        window.after(500, tick)
+    
+    window.after(500, tick)
+    window.mainloop()
 
     
 if __name__ == '__main__':
